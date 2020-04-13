@@ -67,7 +67,7 @@ time pg_dump \
   $DATABASE_URL > ./"${FILENAME}"_plain_format.sql.gz
 
 printf "Encrypt the plain format backup ...\n"
-openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" \
+openssl enc -aes-256-cbc -pbkdf2 -e -pass "env:DB_BACKUP_ENC_KEY" \
   -in ./"${FILENAME}"_plain_format.sql.gz \
   -out /tmp/"${FILENAME}"_plain_format.gz.enc
 
@@ -78,7 +78,7 @@ time pg_dump \
   $DATABASE_URL > ./"${FILENAME}"_custom_format.dump
 
 printf "Encrypt the custom format backup"
-openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" \
+openssl enc -aes-256-cbc -pbkdf2 -e -pass "env:DB_BACKUP_ENC_KEY" \
   -in ./"${FILENAME}"_custom_format.dump \
   -out /tmp/"${FILENAME}"_custom_format.enc
 
@@ -92,7 +92,7 @@ printf "compress directory format ...\n"
 tar -zcvf ./"${FILENAME}"_directory_format.tar.gz ./"${FILENAME}"_directory_format/
 
 printf "Encrypt the directory format backup ...\n"
-openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" \
+openssl enc -aes-256-cbc -pbkdf2 -e -pass "env:DB_BACKUP_ENC_KEY" \
   -in ./"${FILENAME}"_directory_format.tar.gz \
   -out /tmp/"${FILENAME}"_directory_format.gz.enc
 
@@ -106,7 +106,7 @@ printf "compress tar format ...\n"
 gzip ./"${FILENAME}"_tar_format.tar
 
 printf "Encrypt the tar format backup ...\n"
-openssl enc -aes-256-cbc -e -pass "env:DB_BACKUP_ENC_KEY" \
+openssl enc -aes-256-cbc -pbkdf2 -e -pass "env:DB_BACKUP_ENC_KEY" \
   -in ./"${FILENAME}"_tar_format.tar.gz \
   -out /tmp/"${FILENAME}"_tar_format.gz.enc
 
