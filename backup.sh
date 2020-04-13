@@ -3,8 +3,6 @@
 Green='\033[0;32m'
 EC='\033[0m'
 
-TIMESTAMP=$(date --iso-8601=seconds)
-
 # Exit this script immediately if a command exits with a non-zero status
 set -e
 
@@ -23,7 +21,8 @@ shift
 done
 
 DBNAME=${DBNAME:='database'}
-readonly filename="${DBNAME}_${TIMESTAMP}"
+readonly timestamp=$(date --iso-8601=seconds)
+readonly filename="${DBNAME}_${timestamp}"
 
 if [[ -z "$DBNAME" ]]; then
   echo "Missing DBNAME variable"
