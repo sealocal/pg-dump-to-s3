@@ -12,20 +12,20 @@ key="$1"
 
 # Parse command-line arguments for this script
 case $key in
-    -db|--dbname)
-    DBNAME="$2"
+    -db|--dbname|--database-name)
+    DATABASE_NAME="$2"
     shift
     ;;
 esac
 shift
 done
 
-DBNAME=${DBNAME:='database'}
+DATABASE_NAME=${DATABASE_NAME:='database'}
 readonly timestamp=$(date --iso-8601=seconds)
-readonly filename="${DBNAME}_${timestamp}"
+readonly filename="${DATABASE_NAME}_${timestamp}"
 
-if [[ -z "$DBNAME" ]]; then
-  echo "Missing DBNAME variable"
+if [[ -z "$DATABASE_NAME" ]]; then
+  echo "Missing DATABASE_NAME variable"
   exit 1
 fi
 if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
@@ -40,8 +40,8 @@ if [[ -z "$AWS_DEFAULT_REGION" ]]; then
   echo "Missing AWS_DEFAULT_REGION variable"
   exit 1
 fi
-if [[ -z "$S3_BUCKET_PATH" ]]; then
-  echo "Missing S3_BUCKET_PATH variable"
+if [[ -z "$BUCKET_NAME" ]]; then
+  echo "Missing BUCKET_NAME variable"
   exit 1
 fi
 if [[ -z "$DATABASE_URL" ]]; then
@@ -115,26 +115,26 @@ openssl enc -aes-256-cbc -pbkdf2 -e -pass "env:DB_BACKUP_ENC_KEY" \
   -in $download_path/"${filename}"_tar_format.tar.gz \
   -out /tmp/"${filename}"_tar_format.gz.enc
 
-printf "${Green}Copy Postgres dumps to AWS S3 at S3_BUCKET_PATH...${EC}\n"
+printf "${Green}Copy Postgres dumps to AWS S3 at BUCKET_NAME...${EC}\n"
 printf "upload plain format ...\n"
 time aws s3 cp \
   /tmp/"${filename}"_plain_format.gz.enc \
-  s3://$S3_BUCKET_PATH/$DBNAME/"${filename}"_plain_format.gz.enc
+  s3://$BUCKET_NAME/$DATABASE_NAME/"${filename}"_plain_format.gz.enc
 
 printf "upload custom format ...\n"
 time aws s3 cp \
   /tmp/"${filename}"_custom_format.enc \
-  s3://$S3_BUCKET_PATH/$DBNAME/"${filename}"_custom_format.enc
+  s3://$BUCKET_NAME/$DATABASE_NAME/"${filename}"_custom_format.enc
 
 printf "upload directroy format ...\n"
 time aws s3 cp \
   /tmp/"${filename}"_directory_format.gz.enc \
-  s3://$S3_BUCKET_PATH/$DBNAME/"${filename}"_directory_format.gz.enc
+  s3://$BUCKET_NAME/$DATABASE_NAME/"${filename}"_directory_format.gz.enc
 
 printf "upload tar format ...\n"
 time aws s3 cp \
   /tmp/"${filename}"_tar_format.gz.enc \
-  s3://$S3_BUCKET_PATH/$DBNAME/"${filename}"_tar_format.gz.enc
+  s3://$BUCKET_NAME/$DATABASE_NAME/"${filename}"_tar_format.gz.enc
 
 # Remove the database dumps from the app server
 rm -v /tmp/"${filename}"_plain_format.gz.enc $download_path/"${filename}"_plain_format.sql.gz
